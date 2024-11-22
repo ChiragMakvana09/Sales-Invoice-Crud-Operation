@@ -1,0 +1,178 @@
+<div class="saved-invoices">
+  <table border="2" style="margin: 20px; margin-left: 6px" width="100%">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Action Button</th>
+        <th>Invoice DateTime</th>
+        <th>Invoice No</th>
+        <th>Customer Name</th>
+        <th>Customer Mobile No</th>
+        <th>Actual Amount</th>
+        <!-- <th>Total Quantity</th> -->
+        <th>Discount in Rs</th>
+        <th>Paid Amount</th>
+        <th>Payment Method</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for(invoice of invoices; track invoice; let i = $index) {
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>
+          <button (click)="printInvoice(invoice)">Print</button>
+          <button (click)="updateInvoice(invoice, i)">Update</button>
+          <button (click)="deleteInvoice(invoice)">Delete</button>
+        </td>
+        <td>{{ invoice.invoiceDateTime }}</td>
+        <td>{{ invoice.invoiceNumber }}</td>
+        <td>{{ invoice.customerName }}</td>
+        <td>{{ invoice.customerMobile }}</td>
+        <td>{{ invoice.ActualAmount }}</td>
+        <!-- <td>{{ invoice.totalQuantity }}</td> -->
+        <td>{{ invoice.items[0]?.discount || "-" }}</td>
+        <td>{{ invoice.totalAmount }}</td>
+        <td>{{ invoice.selectedPaymentMethod }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<div class="invoice-main">
+  <div class="invoice-details">
+    <div class="form-group">
+      <label for="invoiceNumber">Invoice Number</label>
+      <input type="text" id="invoiceNumber" [value]="invoiceNumber" readonly />
+    </div>
+
+    <div class="form-group">
+      <label for="invoiceDateTime">Invoice Date & Time:</label>
+      <input
+        type="datetime-local"
+        id="invoiceDateTime"
+        [(ngModel)]="invoiceDateTime"
+        [min]="minDateTime"
+        [max]="maxDateTime"
+        required
+      />
+    </div>
+
+    <div>
+      <label>Customer Name:</label>
+      <input
+        type="text"
+        [(ngModel)]="customerName"
+        placeholder="Enter Customer Name"
+      />
+    </div>
+
+    <div>
+      <label>Customer Mobile No:</label>
+      <input
+        type="text"
+        [(ngModel)]="customerMobile"
+        placeholder="Enter Customer Mobile Number"
+        maxlength="10"
+      />
+    </div>
+  </div>
+
+  <div>
+    <form>
+      <label>Select Category:</label>
+      <select
+        [(ngModel)]="selectedCategory"
+        (change)="onCategoryChange()"
+        name="category"
+      >
+        @for(category of categories; track category){
+        <option [ngValue]="category">
+          {{ category.name }}
+        </option>
+        }
+      </select>
+
+      <label>Select Item:</label>
+      <select [(ngModel)]="selectedItem" name="item">
+        @for(item of items; track item){
+        <option [ngValue]="item">
+          {{ item.name }}
+        </option>
+        }
+      </select>
+
+      <label>Quantity:</label>
+      <input type="number" [(ngModel)]="quantity" name="quantity" min="1" />
+
+      <label>Discount:</label>
+      <select [(ngModel)]="discountPercentage" name="discountPercentage">
+        <option value="0">0%</option>
+        <option value="5">5%</option>
+        <option value="10">10%</option>
+        <option value="15">15%</option>
+      </select>
+
+      <button type="button" (click)="addItem()">+ Add Item</button>
+    </form>
+
+    <hr />
+
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Sr. No</th>
+          <th>Action</th>
+          <th>Item Name</th>
+          <th>Unit Price (Rs)</th>
+          <th>Quantity</th>
+          <th>Total Value (Rs)</th>
+          <th>Discount (Rs)</th>
+          <th>Net Amount (Rs)</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(item of tableData;track item.index; let i = $index){
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td><button (click)="deleteItem(i)">Delete</button></td>
+          <td>{{ item.itemName }}</td>
+          <td>{{ item.unitPrice }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unitPrice * item.quantity }}</td>
+          <td>{{ item.discount }}</td>
+          <td>{{ item.netAmount }}</td>
+        </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Total</td>
+          <td>{{ totalUnitPrice }}</td>
+          <td>{{ totalQuantity }}</td>
+          <td>{{ totalvalue }}</td>
+          <td>{{ totalDiscount }}</td>
+          <td>{{ totalAmount }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="payment-method">
+      <label for="paymentMethod">Payment Method:</label>
+      <select [(ngModel)]="selectedPaymentMethod" name="paymentMethod">
+        <option value="card">Card</option>
+        <option value="upi">UPI</option>
+        <option value="cash">Cash</option>
+      </select>
+    </div>
+    <div class="total-amount">
+      <p><strong>Paid Amount: </strong>{{ totalAmount }}</p>
+    </div>
+    <div style="margin-top: 1rem">
+      <button type="button" (click)="saveData()">
+        {{ isUpdateMode ? "Update Invoice" : "Save Invoice" }}
+      </button>
+      <button type="button" (click)="cancelData()">Cancel</button>
+    </div>
+  </div>
+</div>
